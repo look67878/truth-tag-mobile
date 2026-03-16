@@ -338,7 +338,7 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
                   className="h-11 px-5 rounded-xl text-white font-medium"
                   style={{ background: "linear-gradient(135deg, var(--nature-green) 0%, var(--eco-accent) 100%)" }}
                 >
-                  Enable 123Camera
+                  Enable Camera
                 </button>
                 <button
                   onClick={handleContinueWithoutCamera}
