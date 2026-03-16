@@ -26,6 +26,7 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
   const [detected, setDetected] = useState(false);
   const [statusText, setStatusText] = useState("Waiting for camera");
   const [detectorSupported, setDetectorSupported] = useState(true);
+  const [scannerUnavailable, setScannerUnavailable] = useState(false);
   const [successFlash, setSuccessFlash] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -34,6 +35,7 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
   const rafRef = useRef<number | null>(null);
   const scanBusyRef = useRef(false);
   const lastScanTsRef = useRef(0);
+  const detectFailureCountRef = useRef(0);
 
   const isReadyForScan = cameraReady || demoMode;
 
@@ -144,6 +146,8 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
       setCameraError(null);
       setCameraReady(false);
       setDetected(false);
+      setScannerUnavailable(false);
+      detectFailureCountRef.current = 0;
       setStatusText("Requesting camera permission...");
       stopCamera();
 
@@ -165,13 +169,35 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
 
       setDemoMode(false);
       setCameraReady(true);
-      setStatusText("Point barcode inside frame");
+      setStatusText(detectorRef.current ? "Point barcode inside frame" : "Automatic barcode scanning is not available on this browser.");
     } catch {
       setCameraError("Camera permission is blocked. Please allow camera access and tap Enable Camera.");
       setCameraReady(false);
       setStatusText("Waiting for camera");
     }
   }, [stopCamera]);
+
+  const detectCodes = useCallback(async (video: HTMLVideoElement) => {
+    if (!detectorRef.current) {
+      return [];
+    }
+
+    try {
+      return await detectorRef.current.detect(video);
+    } catch {
+      if (!("createImageBitmap" in window)) {
+        throw new Error("ImageBitmap fallback is unavailable.");
+      }
+
+      const bitmap = await createImageBitmap(video);
+
+      try {
+        return await detectorRef.current.detect(bitmap);
+      } finally {
+        bitmap.close();
+      }
+    }
+  }, []);
 
   const scanFrame = useCallback(
     async (timestamp: number) => {
@@ -200,20 +226,28 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
       lastScanTsRef.current = timestamp;
 
       try {
-        const barcodes = await detectorRef.current.detect(video);
+        const barcodes = await detectCodes(video);
+        detectFailureCountRef.current = 0;
         if (barcodes.length > 0) {
           handleDetected(barcodes[0].rawValue);
           scanBusyRef.current = false;
           return;
         }
       } catch {
-        setStatusText("Scanning camera stream...");
+        detectFailureCountRef.current += 1;
+
+        if (detectFailureCountRef.current >= 3) {
+          setScannerUnavailable(true);
+          setStatusText("Automatic barcode scanning is not available on this browser.");
+        } else {
+          setStatusText("Scanning camera stream...");
+        }
       }
 
       scanBusyRef.current = false;
       rafRef.current = requestAnimationFrame(scanFrame);
     },
-    [cameraReady, demoMode, detected, handleDetected],
+    [cameraReady, demoMode, detectCodes, detected, handleDetected],
   );
 
   useEffect(() => {
@@ -231,6 +265,7 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
     }
 
     if (!detectorRef.current) {
+      setScannerUnavailable(true);
       setStatusText("Barcode detector not supported on this browser.");
       return;
     }
@@ -253,6 +288,7 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
   const handleContinueWithoutCamera = () => {
     stopCamera();
     setDemoMode(true);
+    setScannerUnavailable(false);
     setCameraError(null);
     setDetected(false);
     setStatusText("Demo mode: tap 'Simulate Barcode Scan' to continue");
@@ -312,6 +348,18 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {!showOverlay && scannerUnavailable && !demoMode && (
+          <div className="absolute inset-x-6 top-24 z-10 rounded-2xl border border-white/20 bg-black/55 px-4 py-4 text-center backdrop-blur-sm">
+            <p className="text-sm font-medium text-white">This browser can open the camera, but it cannot scan barcodes automatically.</p>
+            <button
+              onClick={handleContinueWithoutCamera}
+              className="mt-3 h-10 px-4 rounded-xl text-white/90 font-medium border border-white/40 bg-white/10"
+            >
+              Use Demo Scan Instead
+            </button>
           </div>
         )}
       </div>
