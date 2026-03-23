@@ -352,7 +352,6 @@ export function ScanningScreen({ onNavigate, onClose }: ScanningScreenProps) {
                     <Droplet className="w-6 h-6 text-red-400" />
                   </div>
                   <div>
-                    <div className="text-white font-semibold text-sm">高水足迹</div>
                     <div className="text-white/50 text-xs mt-0.5">High Water Footprint</div>
                   </div>
                 </button>
@@ -364,8 +363,7 @@ export function ScanningScreen({ onNavigate, onClose }: ScanningScreenProps) {
                   <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(34,197,94,0.2)" }}>
                     <Leaf className="w-6 h-6 text-green-400" />
                   </div>
-                  <div>
-                    <div className="text-white font-semibold text-sm">低水足迹</div>
+                  <div>                   
                     <div className="text-white/50 text-xs mt-0.5">Low Water Footprint</div>
                   </div>
                 </button>
