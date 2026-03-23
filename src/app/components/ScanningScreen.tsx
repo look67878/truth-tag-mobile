@@ -1,4 +1,4 @@
-﻿import { Camera, X } from "lucide-react";
+﻿import { Camera, Droplet, Leaf, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type ScanResultTarget = "impact-result" | "impact-result-sustainable";
@@ -14,16 +14,16 @@ type BarcodeDetectorWindow = Window & {
 interface ScanningScreenProps {
   onNavigate: (screen: string) => void;
   onClose: () => void;
-  resultTarget: ScanResultTarget;
 }
 
 const BARCODE_FORMATS = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39", "qr_code"];
 
-export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningScreenProps) {
+export function ScanningScreen({ onNavigate, onClose }: ScanningScreenProps) {
   const [cameraReady, setCameraReady] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [demoMode, setDemoMode] = useState(false);
   const [detected, setDetected] = useState(false);
+  const [showChoice, setShowChoice] = useState(false);
   const [statusText, setStatusText] = useState("Waiting for camera");
   const [detectorSupported, setDetectorSupported] = useState(true);
   const [scannerUnavailable, setScannerUnavailable] = useState(false);
@@ -95,11 +95,19 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
       triggerVibration();
       window.setTimeout(() => setSuccessFlash(false), 260);
 
+      // Show choice buttons instead of auto-navigating
       window.setTimeout(() => {
-        onNavigate(resultTarget);
+        setShowChoice(true);
       }, 400);
     },
-    [detected, onNavigate, playBeep, resultTarget, triggerVibration],
+    [detected, playBeep, triggerVibration],
+  );
+
+  const handleChooseResult = useCallback(
+    (target: ScanResultTarget) => {
+      onNavigate(target);
+    },
+    [onNavigate],
   );
 
   const stopCamera = useCallback(() => {
@@ -146,6 +154,7 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
       setCameraError(null);
       setCameraReady(false);
       setDetected(false);
+      setShowChoice(false);
       setScannerUnavailable(false);
       detectFailureCountRef.current = 0;
       setStatusText("Requesting camera permission...");
@@ -291,6 +300,7 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
     setScannerUnavailable(false);
     setCameraError(null);
     setDetected(false);
+    setShowChoice(false);
     setStatusText("Demo mode: tap 'Simulate Barcode Scan' to continue");
   };
 
@@ -306,7 +316,7 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
           }`}
         />
 
-        {demoMode && (
+        {demoMode && !showChoice && (
           <div className="absolute inset-0 bg-gradient-to-b from-gray-900/80 to-gray-800/80 flex items-center justify-center px-6 text-center">
             <div>
               <p className="text-white font-medium">Demo mode is active</p>
@@ -317,6 +327,49 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
               >
                 Simulate Barcode Scan
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Post-scan choice overlay */}
+        {showChoice && (
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center px-6 z-10">
+            <div className="w-full max-w-sm text-center">
+              <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p className="text-white text-lg font-semibold mb-2">Barcode Scanned</p>
+              <p className="text-white/70 text-sm mb-8">Choose the product type to view results</p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => handleChooseResult("impact-result")}
+                  className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-white/20 bg-white/10 active:bg-white/20 transition-colors"
+                >
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(239,68,68,0.2)" }}>
+                    <Droplet className="w-6 h-6 text-red-400" />
+                  </div>
+                  <div>
+                    <div className="text-white font-semibold text-sm">高水足迹</div>
+                    <div className="text-white/50 text-xs mt-0.5">High Water Footprint</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleChooseResult("impact-result-sustainable")}
+                  className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-white/20 bg-white/10 active:bg-white/20 transition-colors"
+                >
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(34,197,94,0.2)" }}>
+                    <Leaf className="w-6 h-6 text-green-400" />
+                  </div>
+                  <div>
+                    <div className="text-white font-semibold text-sm">低水足迹</div>
+                    <div className="text-white/50 text-xs mt-0.5">Low Water Footprint</div>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -371,25 +424,29 @@ export function ScanningScreen({ onNavigate, onClose, resultTarget }: ScanningSc
         <X className="w-6 h-6 text-white" />
       </button>
 
-      <div className="absolute inset-0 flex items-center justify-center p-8 pointer-events-none">
-        <div className="relative w-full max-w-sm aspect-square">
-          <div className="absolute top-0 left-0 w-16 h-16 border-t-4 border-l-4 rounded-tl-3xl" style={{ borderColor: "white" }} />
-          <div className="absolute top-0 right-0 w-16 h-16 border-t-4 border-r-4 rounded-tr-3xl" style={{ borderColor: "white" }} />
-          <div className="absolute bottom-0 left-0 w-16 h-16 border-b-4 border-l-4 rounded-bl-3xl" style={{ borderColor: "white" }} />
-          <div className="absolute bottom-0 right-0 w-16 h-16 border-b-4 border-r-4 rounded-br-3xl" style={{ borderColor: "white" }} />
+      {!showChoice && (
+        <div className="absolute inset-0 flex items-center justify-center p-8 pointer-events-none">
+          <div className="relative w-full max-w-sm aspect-square">
+            <div className="absolute top-0 left-0 w-16 h-16 border-t-4 border-l-4 rounded-tl-3xl" style={{ borderColor: "white" }} />
+            <div className="absolute top-0 right-0 w-16 h-16 border-t-4 border-r-4 rounded-tr-3xl" style={{ borderColor: "white" }} />
+            <div className="absolute bottom-0 left-0 w-16 h-16 border-b-4 border-l-4 rounded-bl-3xl" style={{ borderColor: "white" }} />
+            <div className="absolute bottom-0 right-0 w-16 h-16 border-b-4 border-r-4 rounded-br-3xl" style={{ borderColor: "white" }} />
 
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--eco-accent)] to-transparent animate-pulse" />
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--eco-accent)] to-transparent animate-pulse" />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="absolute bottom-0 left-0 right-0 p-8 text-center">
-        <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/20 backdrop-blur-sm">
-          <div className={`w-2 h-2 rounded-full ${detected ? "bg-green-400" : "bg-white animate-pulse"}`} />
-          <span className="text-white font-medium">{detected ? "Barcode recognized" : statusText}</span>
+      {!showChoice && (
+        <div className="absolute bottom-0 left-0 right-0 p-8 text-center">
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/20 backdrop-blur-sm">
+            <div className={`w-2 h-2 rounded-full ${detected ? "bg-green-400" : "bg-white animate-pulse"}`} />
+            <span className="text-white font-medium">{detected ? "Barcode recognized" : statusText}</span>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

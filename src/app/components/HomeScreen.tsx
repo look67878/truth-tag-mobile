@@ -1,13 +1,10 @@
 ﻿import { Scan, Droplet, Leaf, TrendingDown } from "lucide-react";
 
-type ScanResultTarget = "impact-result" | "impact-result-sustainable";
-
 interface HomeScreenProps {
   onNavigate: (screen: string) => void;
-  onStartScan: (target: ScanResultTarget) => void;
 }
 
-export function HomeScreen({ onNavigate, onStartScan }: HomeScreenProps) {
+export function HomeScreen({ onNavigate }: HomeScreenProps) {
   return (
     <div className="min-h-screen bg-white">
       <div className="px-6 pt-12 pb-8">
@@ -56,35 +53,14 @@ export function HomeScreen({ onNavigate, onStartScan }: HomeScreenProps) {
       </div>
 
       <div className="px-6 mb-8">
-        <div
-          className="relative w-full h-32 rounded-3xl shadow-lg overflow-hidden"
+        <button
+          onClick={() => onNavigate("scanning")}
+          className="relative w-full h-32 rounded-3xl shadow-lg overflow-hidden flex items-center justify-center gap-4 transition-colors active:opacity-90"
           style={{ background: "linear-gradient(135deg, var(--nature-green) 0%, var(--eco-accent) 100%)" }}
         >
-          <button
-            onClick={() => onStartScan("impact-result")}
-            className="absolute inset-y-0 left-0 w-1/2 transition-colors active:bg-black/10"
-            aria-label="扫描高耗水产品"
-          />
-          <button
-            onClick={() => onStartScan("impact-result-sustainable")}
-            className="absolute inset-y-0 right-0 w-1/2 transition-colors active:bg-black/10"
-            aria-label="扫描低耗水产品"
-          />
-
-          <div className="absolute top-4 bottom-4 left-1/2 w-px bg-white/35 pointer-events-none" />
-
-          <div className="absolute inset-0 flex items-center justify-center gap-4 pointer-events-none">
-            <Scan className="w-12 h-12 text-white" strokeWidth={2.5} />
-            <span className="text-2xl font-bold text-white">Scan Barcode</span>
-          </div>
-
-          <div className="absolute bottom-3 left-1/4 -translate-x-1/2 text-white/90 text-xs font-medium pointer-events-none">
-            高水足迹
-          </div>
-          <div className="absolute bottom-3 left-3/4 -translate-x-1/2 text-white/90 text-xs font-medium pointer-events-none">
-            低水足迹
-          </div>
-        </div>
+          <Scan className="w-12 h-12 text-white" strokeWidth={2.5} />
+          <span className="text-2xl font-bold text-white">Scan Barcode</span>
+        </button>
       </div>
 
       <div className="px-6 pb-8">
