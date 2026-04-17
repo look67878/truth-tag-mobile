@@ -40,3 +40,40 @@ src/
       ContinueNotedScreen.tsx
       FinalThankYouScreen.tsx
   styles/
+
+## Design Challenge
+
+> How might we make the hidden resource cost of fast fashion 
+> structurally visible at the moment of purchase, so that 
+> consumers have the conditions to make an informed choice?
+
+## Interaction Flow
+
+1. **Home** — Dashboard showing cumulative water savings
+2. **Scan** — User scans a garment barcode
+3. **Impact Result** — Water footprint with relatable metric
+4. **Alternatives** — Lower impact options with price comparison
+5. **Gratitude Letter** — Optional letter from a garment worker's daughter
+6. **Thank You** — Session summary with personalised impact statement
+
+## Run Locally
+
+git clone https://github.com/look67878/truth-tag-mobile.git
+cd truth-tag-mobile
+npm install
+npm run dev
+
+Open http://localhost:5173 on mobile browser or Chrome DevTools device mode.
+
+## Demo
+
+YouTube: (your-youtube-link)
+
+## Author
+
+Chen Wang — UWE Bristol, BSc Information Technology
+Module: UFCFQ5-30-3 Interaction Design
+
+
+
+
