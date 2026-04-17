@@ -64,7 +64,6 @@ cd truth-tag-mobile
 npm install
 npm run dev
 
-Open http://localhost:5173 on mobile browser or Chrome DevTools device mode.
 
 ## Demo
 
