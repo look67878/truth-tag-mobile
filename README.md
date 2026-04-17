@@ -40,6 +40,7 @@ src/
       ContinueNotedScreen.tsx
       FinalThankYouScreen.tsx
   styles/
+ ```
 
 ## Design Challenge
 
