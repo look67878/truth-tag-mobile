@@ -1,11 +1,40 @@
+# Truth Tag Mobile
 
-  # Truth Tag Mobile App Design
+Truth Tag Mobile is a mobile-first web app prototype designed to help users scan product barcodes and view sustainability-related product impact information. The app provides an interactive user flow from scanning to result pages, product details, and alternative recommendations.
 
-  This is a code bundle for Truth Tag Mobile App Design. The original project is available at https://www.figma.com/design/cMFE3yeRsiv4oj26XT4HSv/Truth-Tag-Mobile-App-Design.
+## Features
 
-  ## Running the code
+- Mobile-friendly interface
+- Barcode scanning screen
+- Product impact result pages
+- Sustainable product result flow
+- Product detail page
+- Alternative recommendation screens
+- Simple multi-screen navigation flow
+- Ready for deployment with Vercel
 
-  Run `npm i` to install the dependencies.
+## Tech Stack
 
-  Run `npm run dev` to start the development server.
-  
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+
+## Project Structure
+
+```bash
+src/
+  app/
+    App.tsx
+    components/
+      HomeScreen.tsx
+      ScanningScreen.tsx
+      ImpactResultScreen.tsx
+      ImpactResultScreenSustainable.tsx
+      ProductDetailsScreen.tsx
+      AlternativesScreen.tsx
+      AminaInfoScreen.tsx
+      GratitudeScreen.tsx
+      ContinueNotedScreen.tsx
+      FinalThankYouScreen.tsx
+  styles/
