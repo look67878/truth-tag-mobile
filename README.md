@@ -71,8 +71,7 @@ YouTube: (your-youtube-link)
 
 ## Author
 
-Chen Wang — UWE Bristol, BSc Information Technology
-Module: UFCFQ5-30-3 Interaction Design
+Chen Wang
 
 
 
