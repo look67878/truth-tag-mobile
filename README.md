@@ -2,6 +2,8 @@
 
 Truth Tag Mobile is a mobile-first web app prototype designed to help users scan product barcodes and view sustainability-related product impact information. The app provides an interactive user flow from scanning to result pages, product details, and alternative recommendations.
 
+[Prototype link: https://truth-tag-mobile.vercel.app]
+
 ## Features
 
 - Mobile-friendly interface
